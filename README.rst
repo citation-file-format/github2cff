@@ -26,3 +26,5 @@ To create a CITATION.cff file of a release, you must supply the doi that is asso
    python github_cff_extractor.py
 
 Whenever a new release is made of the software the CITATION.cff must be updated with new doi/version/release date.
+
+github2cff was developed in around 6 hrs at the Software Sustainability Institute Collabrative Workshop 2018 Hackday.
