@@ -1,42 +1,13 @@
-from github import Github
-from pprint import pprint
 import re
 
-'''
-FIXME: This is just a sketch at present!
-'''
+from github import Github
 
-# FIXME: Put the GitHub auth token in the file below for now. Do NOT commit this file to git :-)
+
+# NOTE: Put the GitHub auth token in the file below for now. Do NOT commit this file to git :-)
 auth_token_file = 'auth_token.txt'
 
 with open(auth_token_file, 'r') as f:
     auth_token = f.read().strip()
-
-# TODO: These will become user-selectable inputs
-input_username = 'codemeta'
-input_reponame = 'codemeta'
-
-# This has releases + a newer tag!
-# Here we'd expect to take the last release rather than the last branch
-#input_username = 'citation-file-to_cff_string'
-#input_reponame = 'cff-converter-python'
-
-# This has no releases, but lots of tags
-#input_username = 'davemckain'
-#input_reponame = 'jacomax'
-
-# This has no releases, no tags, just a branch
-# input_username = 'davemckain'
-# input_reponame = 'asciimath-parser'
-
-###########################################################
-
-
-def _debug_list(name, paginated_list):
-    """Temporary to debug the contents of a PagninatedList object"""
-    print("Debugging {}".format(name))
-    for item in paginated_list:
-        pprint(item)
 
 
 class GitHubCffGuesser:
@@ -72,7 +43,6 @@ class GitHubCffGuesser:
         if len(releases):
             # Take most recent release
             latest_release = releases[0]
-            pprint(latest_release)
             result['version'] = latest_release.tag_name
             result['release_date'] = self.to_cff_date(latest_release.created_at)
         elif len(tags):
@@ -176,6 +146,23 @@ repository-code: {repo_url}'''.format(
 
 # Example code
 if __name__ == '__main__':
+    # TODO: These would normally be user-selectable inputs
+    input_username = 'codemeta'
+    input_reponame = 'codemeta'
+
+    # This has releases + a newer tag!
+    # Here we'd expect to take the last release rather than the last branch
+    #input_username = 'citation-file-to_cff_string'
+    #input_reponame = 'cff-converter-python'
+
+    # This has no releases, but lots of tags
+    #input_username = 'davemckain'
+    #input_reponame = 'jacomax'
+
+    # This has no releases, no tags, just a branch
+    #input_username = 'davemckain'
+    #input_reponame = 'asciimath-parser'
+
     github = Github(auth_token)
     user = github.get_user(input_username)
     repo = user.get_repo(input_reponame)
