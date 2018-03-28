@@ -5,6 +5,8 @@ authors:
   - given-names: Dave
   - family-names: Druskat
     given-names: Stephan
+  - family-names: Parker
+    given-names: Joseph
 title: github2cff
 version: 0.1
 date-released: 2018-03.28
