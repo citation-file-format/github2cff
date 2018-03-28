@@ -6,7 +6,7 @@ import re
 FIXME: This is just a sketch at present!
 '''
 
-# FIXME: Put the GitHub auth token in the file below for now. Do NOT commit this file to git :-)
+# FIXME: Put the GitLab auth token in the file below for now. Do NOT commit this file to git :-)
 auth_token_file = 'auth_token.txt'
 
 with open(auth_token_file, 'r') as f:
@@ -71,27 +71,19 @@ class GitLabCffGuesser:
         This tries to extract data from the best possible release information.
         FIXME: Not implemented...
         """
-#        releases = list(self.repo.get_releases())
-#        tags = list(self.repo.get_tags())
-#        if len(releases):
-#            # Take most recent release
-#            latest_release = releases[0]
-#            pprint(latest_release)
-#            result['version'] = latest_release.tag_name
-#            result['release_date'] = self.to_cff_date(latest_release.created_at)
-#        elif len(tags):
-#            # Take most recent tag
-#            latest_tag = tags[0]
-#            result['version'] = latest_tag.name
-#            result['release_date'] = self.to_cff_date(latest_tag.commit.commit.author.date)
-#        else:
-#            # No tags yet, so we'll take the last commit on the default branch
-#            branch = repo.get_branch(repo.default_branch)
-#            result['version'] = branch.commit.sha
-#            result['release_date'] = self.to_cff_date(branch.commit.commit.author.date)
+        #tags = [] #self.g.getrepositorytags(self.repo, page=1, per_page=20)
+        tags = self.g.getrepositorytags(self.repo, page=1, per_page=20)
+        if len(tags):
+            # Take most recent tag
+            latest_tag = tags[0]
+            print(latest_tag)
+            result['version'] = latest_tag['name']
+            result['release_date'] = self.to_cff_date(latest_tag['commit']['committed_date'])
+        else:
+            # No tags yet, so we'll take the last commit on the default branch
+            result['version'] = self.g.getrepositories(self.repo)[0]['commit']['id']
+            result['release_date'] = self.to_cff_date(self.g.getproject(self.repo)['last_activity_at'])
 
-        result['version'] = 0.0
-        result['release_date'] = self.to_cff_date("2018-03-28 15:01:00")
         
     def _parse_human_name(self, name):
         """
@@ -182,6 +174,7 @@ repository-code: {repo_url}'''.format(
 
 # Example code
 gitlab = Gitlab('https://gitlab.com/', token=auth_token)
-repo_id=4251096
+repo_id=4251096 # STORM
+repo_id=1220931 # SpectrGK
 gitlab2cff = GitLabCffGuesser(gitlab,repo_id)
 print(gitlab2cff.to_cff_string())
