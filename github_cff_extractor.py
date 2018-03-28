@@ -16,10 +16,33 @@ with open(auth_token_file, 'r') as f:
 input_username = 'codemeta'
 input_reponame = 'codemeta'
 
+# This has releases + a newer tag!
+# Here we'd expect to take the last release rather than the last branch
+#input_username = 'citation-file-format'
+#input_reponame = 'cff-converter-python'
+
+# This has no releases, but lots of tags
+#input_username = 'davemckain'
+#input_reponame = 'jacomax'
+
+# This has no releases, no tags, just a branch
+#input_username = 'davemckain'
+#input_reponame = 'asciimath-parser'
+
 ###########################################################
 
 
+def _debug_list(name, paginated_list):
+    '''Temporary to debug the contents of a PagninatedList object'''
+    print("Debugging {}".format(name))
+    for item in paginated_list:
+        pprint(item)
+
+
 class CffAuthor:
+    """
+    FIXME: Downgrade this to a dictionary, as that's what we're returning elsewhere
+    """
     def __init__(self, family_names, given_names, entity_name=None):
         self.family_names = family_names
         self.given_names = given_names
@@ -33,14 +56,6 @@ class CffAuthor:
                 self.family_names, self.given_names
             )
 
-def _debug_list(name, paginated_list):
-    '''Temporary to debug the contents of a PagninatedList object'''
-    print("Debugging {}".format(name))
-    for item in paginated_list:
-        pprint(item)
-
-
-
 
 class GitHubCffGuesser:
     def __init__(self, repo):
@@ -50,27 +65,32 @@ class GitHubCffGuesser:
     def run(self):
         result = dict()
         result['title'] = self.repo.name
-        result['version'] = self._extract_version()
-        result['release_date'] = self._extract_release_date()
         result['contributors'] = self._extract_contributors()
+        self._extract_release_info(result)
         self.parsed = result
 
-    # FIXME: This only handles one logic branch at present!
-    def _extract_version(self):
-        latest_tag = self._get_latest_tag()
-        return latest_tag.name
-
-    # FIXME: This is not returning the right date at present!
-    # FIXME: This proably needs to be done at the same time as
-    # _extract_version() as we need to deal with multiple code branches...
-    def _extract_release_date(self):
-        latest_tag = self._get_latest_tag()
-        return self.to_cff_date(latest_tag.commit.committer.created_at)
-
-    def _get_latest_tag(self):
+    def _extract_release_info(self, result):
+        """
+        This tries to extract data from the best possible release information.
+        """
+        releases = list(self.repo.get_releases())
         tags = list(self.repo.get_tags())
-        assert (len(tags) > 0)
-        return tags[0]
+        if len(releases):
+            # Take most recent release
+            latest_release = releases[0]
+            pprint(latest_release)
+            result['version'] = latest_release.tag_name
+            result['release_date'] = self.to_cff_date(latest_release.created_at)
+        elif len(tags):
+            # Take most recent tag
+            latest_tag = tags[0]
+            result['version'] = latest_tag.name
+            result['release_date'] = self.to_cff_date(latest_tag.commit.commit.author.date)
+        else:
+            # No tags yet, so we'll take the last commit on the default branch
+            branch = repo.get_branch(repo.default_branch)
+            result['version'] = branch.commit.sha
+            result['release_date'] = self.to_cff_date(branch.commit.commit.author.date)
 
     def _parse_human_name(self, name):
         """
@@ -136,3 +156,5 @@ u = g.get_user(input_username)
 repo = u.get_repo(input_reponame)
 g = GitHubCffGuesser(repo)
 print(g.format())
+
+
