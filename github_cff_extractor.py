@@ -13,8 +13,8 @@ with open(auth_token_file, 'r') as f:
     auth_token = f.read().strip()
 
 # TODO: These will become user-selectable inputs
-# input_username = 'codemeta'
-# input_reponame = 'codemeta'
+input_username = 'codemeta'
+input_reponame = 'codemeta'
 
 # This has releases + a newer tag!
 # Here we'd expect to take the last release rather than the last branch
@@ -26,8 +26,8 @@ with open(auth_token_file, 'r') as f:
 #input_reponame = 'jacomax'
 
 # This has no releases, no tags, just a branch
-input_username = 'davemckain'
-input_reponame = 'asciimath-parser'
+# input_username = 'davemckain'
+# input_reponame = 'asciimath-parser'
 
 ###########################################################
 
@@ -88,10 +88,16 @@ class GitHubCffGuesser:
 
     def _parse_human_name(self, name):
         """
-        FIXME: Yuck yuck yuck! This assumes everyone is called FIRST LAST!
+        Attempts to parse a human name from GitHub, returning a 2-item tuple
+
+        FIXME: This does not work for people like Neil Chue Hong...!
         """
-        bits = re.split(r'\s+', name)
-        return ' '.join(bits[0:-1]), bits[-1]
+        words = re.split(r'\s+', name)
+        if len(words) == 1 and name.count('.') == 1:
+            # Looks like a firstname.lastname person
+            return name.split('.')
+        else:
+            return ' '.join(words[0:-1]), words[-1]
 
     def _extract_contributors(self):
         """
@@ -169,8 +175,9 @@ repository-code: {repo_url}'''.format(
 
 
 # Example code
-github = Github(auth_token)
-user = github.get_user(input_username)
-repo = user.get_repo(input_reponame)
-github2cff = GitHubCffGuesser(repo)
-print(github2cff.to_cff_string())
+if __name__ == '__main__':
+    github = Github(auth_token)
+    user = github.get_user(input_username)
+    repo = user.get_repo(input_reponame)
+    github2cff = GitHubCffGuesser(repo)
+    print(github2cff.to_cff_string())

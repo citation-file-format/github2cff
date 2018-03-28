@@ -1,2 +1,3 @@
 #-e git+git://github.com/citation-file-to_cff_string/cff-converter-python.git#egg=cff-converter-python
+pytest
 PyGitHub
