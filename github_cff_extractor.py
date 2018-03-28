@@ -6,8 +6,11 @@ import re
 FIXME: This is just a sketch at present!
 '''
 
-# TODO: Temporary auth token for initial work. Will be revoked shortly...
-auth_token  = 'ff4a6942deac6d2c116d2fcf357068952eb71419'
+# FIXME: Put the GitHub auth token in the file below for now. Do NOT commit this file to git :-)
+auth_token_file = 'auth_token.txt'
+
+with open(auth_token_file, 'r') as f:
+    auth_token = f.read().strip()
 
 # TODO: These will become user-selectable inputs
 input_username = 'codemeta'
