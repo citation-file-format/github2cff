@@ -7,6 +7,8 @@ authors:
     given-names: Stephan
   - family-names: Parker
     given-names: Joseph
+  - family-names: Baker
+    given-names: James
 title: github2cff
 version: 0.1
 date-released: 2018-03.28
