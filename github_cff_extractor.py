@@ -44,17 +44,17 @@ class GitHubCffGuesser:
             # Take most recent release
             latest_release = releases[0]
             result['version'] = latest_release.tag_name
-            result['release_date'] = self.to_cff_date(latest_release.created_at)
+            result['date_released'] = self.to_cff_date(latest_release.created_at)
         elif len(tags):
             # Take most recent tag
             latest_tag = tags[0]
             result['version'] = latest_tag.name
-            result['release_date'] = self.to_cff_date(latest_tag.commit.commit.author.date)
+            result['date_released'] = self.to_cff_date(latest_tag.commit.commit.author.date)
         else:
             # No tags yet, so we'll take the last commit on the default branch
             branch = repo.get_branch(repo.default_branch)
             result['version'] = branch.commit.sha
-            result['release_date'] = self.to_cff_date(branch.commit.commit.author.date)
+            result['date_released'] = self.to_cff_date(branch.commit.commit.author.date)
 
     def _parse_human_name(self, name):
         """
@@ -125,7 +125,7 @@ repository-code: {repo_url}'''.format(
             title=parsed['title'],
             version=parsed['version'],
             authors_formatted=self._format_authors(),
-            date_released=parsed['release_date'],
+            date_released=parsed['date_released'],
             repo_url=self.repo.html_url,
                    )
 
