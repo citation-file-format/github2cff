@@ -1,0 +1,2 @@
+#-e git+git://github.com/citation-file-format/cff-converter-python.git#egg=cff-converter-python
+PyGitHub
